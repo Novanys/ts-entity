@@ -1,5 +1,7 @@
 export interface InterfaceEntity {
     readonly isExported: boolean;
+    readonly extends: string;
+    readonly implements: string;
     readonly properties: Map<string, any>;
     addProperty({ name, type }): InterfaceEntity;
 }
@@ -22,50 +24,64 @@ export default class Entity {
         }
     }
     
-    public addInterface = ({ name, isExported = false }: { name: string, isExported?: boolean }): InterfaceEntity => {
-        if (this._entity.get(name)) {
+    public addInterface = (arg: { name: string, isExported?: boolean, implements?: string, extends?: string }): InterfaceEntity => {
+        if (this._entity.get(arg.name)) {
             throw new Error(`An interface with the name "${name}" is already declared`);
         }
 
         let newInterface: InterfaceEntity = {
-            isExported: isExported,
+            isExported: arg.isExported,
+            extends: arg.extends,
+            implements: arg.implements,
             properties: new Map(),
             addProperty: ({ name: propertyName, type: propertyType }: { name: string; type: string }) => {
                 newInterface.properties.set(propertyName, propertyType);
 
-                this._entity.set(name, newInterface);
+                this._entity.set(arg.name, newInterface);
 
-                return this._entity.get(name);
+                return this._entity.get(arg.name);
             }
         };
-        this._entity.set(name, newInterface);
+        this._entity.set(arg.name, newInterface);
 
-        return this._entity.get(name);
+        return this._entity.get(arg.name);
     }
 
     private buildProperty = ({name, type }: { name: string, type: string }) => {
         return `${this._indentation}${name}: ${type};`;
     }
 
-    private buildInterface = ({ name, isExported, properties }: { name: string, isExported: boolean, properties: any }) => {
-        let _declaration = [];
-        if (isExported) {
-            _declaration.push('export');
-        }
-        _declaration.push('interface');
-        _declaration.push(name);
-        _declaration.push('{');
-        
-        const _start = _declaration.join(' ');
+    private buildInterface = (arg: { name: string, isExported: boolean, implements: string, extends: string, properties: any }) => {
+        let declaration = [];
 
-        const _properties = [];
-        properties.forEach((value, key) => {
-            _properties.push(this.buildProperty({name: key, type: value }))
+        if (arg.isExported) {
+            declaration.push('export');
+        }
+
+        declaration.push('interface');
+        declaration.push(arg.name);
+
+        if (arg.implements) {
+            declaration.push('implements');
+            declaration.push(arg.implements);
+        }
+
+        if (arg.extends) {
+            declaration.push('extends');
+            declaration.push(arg.extends);
+        }
+        declaration.push('{');
+        
+        const start = declaration.join(' ');
+
+        const props = [];
+        arg.properties.forEach((value, key) => {
+            props.push(this.buildProperty({name: key, type: value }))
         });
         
-        const _end = '}';
+        const end = '}';
         
-        return `${_start}\n${_properties.join('\n')}\n${_end}`;
+        return `${start}\n${props.join('\n')}\n${end}`;
     }
 
     public load = () => {
