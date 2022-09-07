@@ -1,6 +1,8 @@
 # ts-entity
 
-Package to generate typescript interfaces, classes and enums as a string. Works in browsers.
+A lightweight package for generating typescript interfaces, classes, types and enums as a string. Works in browsers.
+
+**Use other mature and robust packages!** for a more stable typescript generator. This is a fun side-project that is heavly inspired by [ts-morph](https://github.com/dsherret/ts-morph) but isnt wrapping tsc and works in the browser out-of-box. It is made in mind that it will be a complement for monaco-editor to add types when mocking objects.
 
 # Example
 ```javascript
