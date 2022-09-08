@@ -1,9 +1,9 @@
-export interface InterfaceEntity {
+export interface EntityInterface {
     readonly isExported: boolean;
     readonly extends: string;
     readonly implements: string;
     readonly properties: Map<string, any>;
-    addProperty({ name, type }): InterfaceEntity;
+    addProperty({ name, type }): EntityInterface;
 }
 
 const DEFAULT_INDENTATION_STEP = 1;
@@ -12,24 +12,22 @@ const DEFAULT_INDENTATION = '\t';
 export default class Entity {
     private _entity = new Map();
     private _indentationStep = DEFAULT_INDENTATION_STEP;
-    private _indentation = '';
+    private _indentation = DEFAULT_INDENTATION;
 
-    constructor({ indentationStep }: { indentationStep?: number }) {
-        if (indentationStep) {
+    constructor({ indentationStep }: { indentationStep?: number } = {}) {
+        if (indentationStep !== undefined) {
             this._indentationStep = indentationStep;
         }
 
-        for (let i = 0; i < this._indentationStep; i++) {
-            this._indentation += DEFAULT_INDENTATION;
-        }
+        this._indentation = this._indentation.repeat(this._indentationStep);
     }
     
-    public addInterface = (arg: { name: string, isExported?: boolean, implements?: string, extends?: string }): InterfaceEntity => {
+    public addInterface = (arg: { name: string, isExported?: boolean, implements?: string, extends?: string }): EntityInterface => {
         if (this._entity.get(arg.name)) {
             throw new Error(`An interface with the name "${name}" is already declared`);
         }
 
-        let newInterface: InterfaceEntity = {
+        let newInterface: EntityInterface = {
             isExported: arg.isExported,
             extends: arg.extends,
             implements: arg.implements,
